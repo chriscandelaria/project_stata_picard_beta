@@ -1,0 +1,9 @@
+v 3
+d PROJECT: Stata module providing a set of tools to build and manage a Stata project
+d
+d Author: Richard Picard
+d No changes made by C. Candelaria. These files provided for ease of installation.
+d
+f project.ado
+f project.hlp
+f project_setup.dlg

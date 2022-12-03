@@ -1,0 +1,108 @@
+/*
+--------------------------------------------------------------------------------
+
+ File    :  project_setup.dlg
+
+    Author  :  Robert Picard, picard@netbox.com
+
+    Version :  2.1.0  (22jan2019)
+
+    Package :  -project- package, from SSC (Robert Picard, picard@netbox.com)
+
+    Site    :  SSC (type -ssc install project- to install)
+
+    Purpose :  Build the command to setup/update a project. It is invoqued by
+               by typing -project, setup- in Stata's Command window
+
+--------------------------------------------------------------------------------
+*/
+
+
+VERSION 9.2
+
+
+POSITION . . 500 190
+
+DIALOG main, tabtitle("Main") label("Setup a project") 
+BEGIN
+
+    GROUPBOX gb_using  ///
+        10 10 480 70, ///
+        label("Select the project's master do-file")
+
+    FILE fi_using                              ///
+        20 40 460 .,                           ///
+        label("Browse...")                     ///
+        filter("Stata do-files (*.do)|*.do")   ///
+        error("master do-file")                ///
+        option(setmaster)                      ///
+        nomemory
+    
+    GROUPBOX gb_other                          ///
+        10 90 480 90,                          ///
+        label("Other options")
+
+    CHECKBOX ck_plaintext                      ///
+        20 115 200 .,                          ///
+        option(textlog)                        ///
+        label("Plain text log files")          ///
+        clickon("script plaintext_on")         ///
+        clickoff("script plaintext_off")
+
+    CHECKBOX ck_relax ///
+        20 140 300 .,                                            ///
+        label("Relax dependency checks for files over (in MB)")  ///
+        clickon("script relax_on")                               ///
+        clickoff("script relax_off")
+
+    SPINNER    sp_relax                        ///
+        400 140 70 .,                          ///
+        min(1)                                 ///
+        max(999999)                            ///
+        default(20)                            ///
+        option(relax)
+
+END
+
+
+SCRIPT relax_on
+BEGIN
+    main.sp_relax.enable
+END
+
+SCRIPT relax_off
+BEGIN
+    main.sp_relax.disable
+END
+
+
+HELP hlp1, view("help project")
+RESET res1
+COPY copy1
+CANCEL can1, label("Cancel")
+OK ok1, label("OK")
+
+
+PROGRAM command
+BEGIN
+
+    require main.fi_using
+    
+    put "project "
+    
+    beginoptions
+    
+        optionarg /oquoted main.fi_using
+        
+        option main.ck_plaintext
+        
+        if main.ck_relax {
+        
+            optionarg main.sp_relax
+            
+        }
+        
+    endoptions
+END
+
+
